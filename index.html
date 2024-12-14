@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Teknoloji Uzmanlık Quiz Oyunu</title>
+    <title>DevFest Antalya 2024 - Quiz</title>
     <style>
       body {
-        font-family: "Arial", sans-serif;
+        font-family: "Google Sans", "Arial", sans-serif;
         background-color: #f4f4f4;
         display: flex;
         justify-content: center;
@@ -25,10 +25,21 @@
         max-width: 800px;
         margin: 10px;
       }
+      .logo {
+        max-width: 400px;
+        margin: 0 auto 20px;
+        display: block;
+      }
+      .gdg-text {
+        text-align: center;
+        color: #666;
+        margin: 10px 0 30px;
+        font-size: 18px;
+      }
       button {
         margin: 8px;
         padding: 12px;
-        background-color: #3498db;
+        background-color: #4285f4; /* Google Blue */
         color: white;
         border: none;
         border-radius: 6px;
@@ -39,7 +50,7 @@
         font-size: 16px;
       }
       button:hover {
-        background-color: #2980b9;
+        background-color: #3367d6; /* Darker Google Blue */
       }
       .tech-area {
         display: flex;
@@ -56,12 +67,12 @@
       }
       #progressFill {
         height: 100%;
-        background-color: #2ecc71;
+        background-color: #0f9d58; /* Google Green */
         width: 0;
         transition: width 0.5s;
       }
       #gameOverSection {
-        background-color: #e74c3c;
+        background-color: #db4437; /* Google Red */
         color: white;
         padding: 20px;
         border-radius: 10px;
@@ -92,38 +103,38 @@
         margin: 15px 0;
       }
       .correct {
-        background-color: #2ecc71 !important;
+        background-color: #0f9d58 !important; /* Google Green */
       }
       .wrong {
-        background-color: #e74c3c !important;
+        background-color: #db4437 !important; /* Google Red */
       }
 
-      /* Mobil Uyumluluk için Ek Stiller */
       @media (max-width: 480px) {
         #gameContainer {
           padding: 15px;
           margin: 5px;
         }
-
+        .logo {
+          max-width: 300px;
+        }
+        .gdg-text {
+          font-size: 16px;
+        }
         button {
           margin: 5px;
           padding: 10px;
           font-size: 14px;
         }
-
         h1 {
           font-size: 24px;
         }
-
         h2 {
           font-size: 20px;
         }
-
         .option-button {
           padding: 10px;
           font-size: 13px;
         }
-
         #questionText {
           font-size: 15px;
         }
@@ -134,8 +145,11 @@
   <body>
     <div id="gameContainer">
       <div id="areaSelection">
-        <h1>Teknoloji Uzmanlık Quiz Oyunu</h1>
-        <h2>Teknoloji Alanı Seçin</h2>
+        <img src="public/antalya.png" alt="DevFest Antalya Logo" class="logo" />
+
+        <p class="gdg-text">
+          Google Developer Groups Antalya tarafından düzenlenmektedir
+        </p>
         <div class="tech-area">
           <button onclick="startQuiz('mobile')">📱 Mobil Teknolojiler</button>
           <button onclick="startQuiz('ai')">🤖 Yapay Zeka</button>
