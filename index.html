@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teknoloji Uzmanlık Quiz Oyunu</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+      #gameContainer {
+        background-color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        width: 100%;
+        max-width: 800px;
+        margin: 10px;
+      }
+      button {
+        margin: 8px;
+        padding: 12px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+        max-width: 300px;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      .tech-area {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      #progressBar {
+        height: 10px;
+        background-color: #e0e0e0;
+        margin: 15px 0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      #progressFill {
+        height: 100%;
+        background-color: #2ecc71;
+        width: 0;
+        transition: width 0.5s;
+      }
+      #gameOverSection {
+        background-color: #e74c3c;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+      }
+      #questionText {
+        font-size: 16px;
+        margin: 15px 0;
+        line-height: 1.5;
+      }
+      #optionsContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
+      .option-button {
+        text-align: left;
+        padding: 12px;
+        margin: 4px;
+        width: 100%;
+        max-width: 500px;
+        font-size: 14px;
+      }
+      #attemptInfo {
+        font-size: 14px;
+        color: #666;
+        margin: 15px 0;
+      }
+      .correct {
+        background-color: #2ecc71 !important;
+      }
+      .wrong {
+        background-color: #e74c3c !important;
+      }
+
+      /* Mobil Uyumluluk için Ek Stiller */
+      @media (max-width: 480px) {
+        #gameContainer {
+          padding: 15px;
+          margin: 5px;
+        }
+
+        button {
+          margin: 5px;
+          padding: 10px;
+          font-size: 14px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+
+        h2 {
+          font-size: 20px;
+        }
+
+        .option-button {
+          padding: 10px;
+          font-size: 13px;
+        }
+
+        #questionText {
+          font-size: 15px;
+        }
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  </head>
+  <body>
+    <div id="gameContainer">
+      <div id="areaSelection">
+        <h1>Teknoloji Uzmanlık Quiz Oyunu</h1>
+        <h2>Teknoloji Alanı Seçin</h2>
+        <div class="tech-area">
+          <button onclick="startQuiz('mobile')">📱 Mobil Teknolojiler</button>
+          <button onclick="startQuiz('ai')">🤖 Yapay Zeka</button>
+          <button onclick="startQuiz('cloud')">☁️ Bulut Teknolojileri</button>
+          <button onclick="startQuiz('web')">🌐 Web Teknolojileri</button>
+        </div>
+      </div>
+
+      <div id="quizSection" style="display: none">
+        <h2 id="quizTitle">Quiz</h2>
+        <div id="progressBar">
+          <div id="progressFill"></div>
+        </div>
+        <p id="questionText"></p>
+        <div id="optionsContainer"></div>
+        <p id="attemptInfo"></p>
+      </div>
+
+      <div id="gameOverSection" style="display: none">
+        <h2>🚫 Oyun Bitti!</h2>
+        <p id="gameOverMessage"></p>
+        <button onclick="location.reload()">Yeniden Başla</button>
+      </div>
+    </div>
+
+    <script>
+      // Quiz veri ve fonksiyonları (önceki koddan devam)
+      const quizData = {
+        // ... (önceki quiz verileri aynen kalacak)
+        mobile: [
+          {
+            question:
+              "Android uygulama geliştirmede kullanılan modern programlama dili hangisidir?",
+            options: ["Kotlin", "Python", "Swift", "C++"],
+            correct: 0,
+            explanation:
+              "Kotlin, Google tarafından Android geliştirme için resmi olarak desteklenen modern programlama dilidir.",
+          },
+          {
+            question: "iOS uygulama geliştirmede kullanılan IDE hangisidir?",
+            options: ["Android Studio", "Visual Studio", "Xcode", "Eclipse"],
+            correct: 2,
+            explanation:
+              "Xcode, Apple'ın iOS uygulama geliştirme için sunduğu resmi IDE'sidir.",
+          },
+          {
+            question: "Flutter hangi programlama dilini kullanır?",
+            options: ["JavaScript", "Dart", "Python", "Java"],
+            correct: 1,
+            explanation: "Flutter, Google'ın Dart programlama dilini kullanır.",
+          },
+          {
+            question:
+              "Hangi mobil uygulama türü hem iOS hem Android'de çalışabilir?",
+            options: ["Native", "Hybrid", "Web App", "Progressive Web App"],
+            correct: 1,
+            explanation:
+              "Hybrid uygulamalar tek kod tabanıyla birden fazla platformda çalışabilir.",
+          },
+          {
+            question: "React Native kim tarafından geliştirilmiştir?",
+            options: ["Google", "Apple", "Facebook", "Microsoft"],
+            correct: 2,
+            explanation:
+              "React Native, Facebook (Meta) tarafından geliştirilmiş bir cross-platform framework'tür.",
+          },
+        ],
+        ai: [
+          {
+            question:
+              "Derin öğrenme için en popüler Python kütüphanesi hangisidir?",
+            options: ["TensorFlow", "NumPy", "Pandas", "Matplotlib"],
+            correct: 0,
+            explanation:
+              "TensorFlow, Google tarafından geliştirilen popüler bir derin öğrenme kütüphanesidir.",
+          },
+          {
+            question: "Hangi algoritma görüntü sınıflandırma için kullanılır?",
+            options: ["Linear Regression", "CNN", "RNN", "Decision Tree"],
+            correct: 1,
+            explanation:
+              "Convolutional Neural Networks (CNN) görüntü işleme ve sınıflandırma için özel olarak tasarlanmıştır.",
+          },
+          {
+            question: "NLP'de kullanılan temel model hangisidir?",
+            options: ["BERT", "ResNet", "VGG", "AlexNet"],
+            correct: 0,
+            explanation:
+              "BERT, doğal dil işleme için Google tarafından geliştirilen transformatör tabanlı bir modeldir.",
+          },
+          {
+            question: "Hangi aktivasyon fonksiyonu en yaygın kullanılır?",
+            options: ["Sigmoid", "ReLU", "Tanh", "Linear"],
+            correct: 1,
+            explanation:
+              "ReLU (Rectified Linear Unit) modern derin öğrenme modellerinde en yaygın kullanılan aktivasyon fonksiyonudur.",
+          },
+          {
+            question:
+              "Yapay sinir ağlarında overfitting'i önlemek için ne kullanılır?",
+            options: [
+              "Batch Normalization",
+              "Dropout",
+              "Data Augmentation",
+              "Tümü",
+            ],
+            correct: 3,
+            explanation:
+              "Overfitting'i önlemek için bu tekniklerin hepsi birlikte kullanılabilir.",
+          },
+        ],
+        cloud: [
+          {
+            question: "AWS'in temel compute servisi hangisidir?",
+            options: ["EC2", "S3", "RDS", "Lambda"],
+            correct: 0,
+            explanation:
+              "EC2 (Elastic Compute Cloud) AWS'in temel compute servisidir.",
+          },
+          {
+            question: "Kubernetes nedir?",
+            options: [
+              "Container Runtime",
+              "Container Orchestration",
+              "Container Image",
+              "Container Registry",
+            ],
+            correct: 1,
+            explanation: "Kubernetes bir container orchestration platformudur.",
+          },
+          {
+            question: "Hangi servis CDN hizmeti sunar?",
+            options: ["AWS CloudFront", "AWS EC2", "AWS RDS", "AWS ECS"],
+            correct: 0,
+            explanation:
+              "CloudFront, AWS'in CDN (Content Delivery Network) servisidir.",
+          },
+          {
+            question: "Docker Compose ne işe yarar?",
+            options: [
+              "Container Build",
+              "Multi-container Deployment",
+              "Container Security",
+              "Container Monitoring",
+            ],
+            correct: 1,
+            explanation:
+              "Docker Compose çoklu container uygulamalarını tanımlamak ve çalıştırmak için kullanılır.",
+          },
+          {
+            question: "Hangi servis serverless computing sağlar?",
+            options: ["EC2", "ECS", "Lambda", "EKS"],
+            correct: 2,
+            explanation:
+              "AWS Lambda serverless computing için kullanılan bir servistir.",
+          },
+        ],
+        web: [
+          {
+            question:
+              "Modern JavaScript framework'lerinden hangisi en popülerdir?",
+            options: ["Angular", "Vue.js", "React", "Svelte"],
+            correct: 2,
+            explanation:
+              "React, Facebook tarafından geliştirilen en popüler JavaScript kütüphanesidir.",
+          },
+          {
+            question: "Hangi protokol web güvenliği için kullanılır?",
+            options: ["HTTP", "HTTPS", "FTP", "SMTP"],
+            correct: 1,
+            explanation:
+              "HTTPS, güvenli web iletişimi için kullanılan şifrelenmiş bir protokoldür.",
+          },
+          {
+            question:
+              "REST API'de hangi metot veri güncellemek için kullanılır?",
+            options: ["GET", "POST", "PUT", "DELETE"],
+            correct: 2,
+            explanation:
+              "PUT metodu, REST API'lerde veri güncellemek için kullanılır.",
+          },
+          {
+            question:
+              "Hangi tool modern web development için package manager'dır?",
+            options: ["npm", "git", "docker", "webpack"],
+            correct: 0,
+            explanation:
+              "npm (Node Package Manager) JavaScript ekosistemi için standart paket yöneticisidir.",
+          },
+          {
+            question: "WebSocket ne için kullanılır?",
+            options: [
+              "Static Content",
+              "Real-time Communication",
+              "Database",
+              "Authentication",
+            ],
+            correct: 1,
+            explanation:
+              "WebSocket, web'de gerçek zamanlı çift yönlü iletişim için kullanılır.",
+          },
+        ],
+      };
+
+      let currentQuiz = null;
+      let currentQuestion = 0;
+      let questions = [];
+
+      function fireConfetti() {
+        const duration = 3000;
+        const animationEnd = Date.now() + duration;
+        const defaults = {
+          startVelocity: 30,
+          spread: 360,
+          ticks: 60,
+          zIndex: 0,
+        };
+
+        function randomInRange(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function () {
+          const timeLeft = animationEnd - Date.now();
+
+          if (timeLeft <= 0) {
+            return clearInterval(interval);
+          }
+
+          const particleCount = 50 * (timeLeft / duration);
+          confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+          });
+          confetti({
+            ...defaults,
+            particleCount,
+            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+          });
+        }, 250);
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function startQuiz(area) {
+        currentQuiz = area;
+        currentQuestion = 0;
+        questions = shuffleArray([...quizData[area]]).slice(0, 5);
+
+        document.getElementById("areaSelection").style.display = "none";
+        document.getElementById("quizSection").style.display = "block";
+        document.getElementById(
+          "quizTitle"
+        ).textContent = `${area.toUpperCase()} Teknoloji Quizi`;
+
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        const questionData = questions[currentQuestion];
+        document.getElementById("questionText").textContent =
+          questionData.question;
+
+        const optionsContainer = document.getElementById("optionsContainer");
+        optionsContainer.innerHTML = "";
+
+        const shuffledOptions = shuffleArray([...questionData.options]);
+        const correctIndex = shuffledOptions.indexOf(
+          questionData.options[questionData.correct]
+        );
+
+        shuffledOptions.forEach((option, index) => {
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.className = "option-button";
+          button.onclick = () => checkAnswer(index, correctIndex);
+          optionsContainer.appendChild(button);
+        });
+
+        document.getElementById("attemptInfo").textContent = `Soru ${
+          currentQuestion + 1
+        }/5`;
+        document.getElementById("progressFill").style.width = `${
+          (currentQuestion / 4) * 100
+        }%`;
+      }
+
+      function checkAnswer(selectedIndex, correctIndex) {
+        const buttons = document.querySelectorAll(".option-button");
+        buttons.forEach((button) => (button.disabled = true));
+
+        buttons[selectedIndex].classList.add(
+          selectedIndex === correctIndex ? "correct" : "wrong"
+        );
+        buttons[correctIndex].classList.add("correct");
+
+        setTimeout(() => {
+          if (selectedIndex === correctIndex) {
+            currentQuestion++;
+            if (currentQuestion >= 5) {
+              showEndGame(true);
+            } else {
+              loadQuestion();
+            }
+          } else {
+            showEndGame(false);
+          }
+        }, 1500);
+      }
+
+      function showEndGame(isWinner) {
+        document.getElementById("quizSection").style.display = "none";
+        document.getElementById("gameOverSection").style.display = "block";
+
+        if (isWinner) {
+          document.getElementById("gameOverSection").style.backgroundColor =
+            "#2ecc71";
+          document.getElementById("gameOverMessage").innerHTML = `
+            <h3>🎉 Tebrikler!</h3>
+            <p>Tüm soruları doğru yanıtladınız!</p>
+          `;
+          // Kazanma durumunda konfeti efektini başlat
+          fireConfetti();
+        } else {
+          const currentQuestionData = questions[currentQuestion];
+          document.getElementById("gameOverMessage").innerHTML = `
+            <p>Yanlış cevap!</p>
+            <p>Doğru cevap: ${
+              currentQuestionData.options[currentQuestionData.correct]
+            }</p>
+            <p>Açıklama: ${currentQuestionData.explanation}</p>
+            <p>Toplam doğru: ${currentQuestion}/5</p>
+          `;
+        }
+      }
+    </script>
+  </body>
+</html>
